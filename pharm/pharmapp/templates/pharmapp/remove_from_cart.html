@@ -1,0 +1,17 @@
+{% extends 'pharmapp/base.html' %}
+
+{% block content %}
+
+<div class="col-md-8 offset-md-3">
+    <h4>Remove - {{ cart_item.item.name }} - from cart </h4>
+    <form action="" method="post">
+        {% csrf_token %}
+        <h5>Currently in cart: {{ cart_item.quantity }} </h5>
+        <label for="quantity">Quantity to remove</label>
+        <input type="number" name="quantity" min="1" max="{{ cart_item.quantity }}" required>
+        <button class="btn btn-danger" type="submit">Remove from Cart</button>
+        <a class="btn btn-secondary" href="{% url 'view_cart' %}">Back</a>
+    </form>
+</div>
+
+{% endblock %}

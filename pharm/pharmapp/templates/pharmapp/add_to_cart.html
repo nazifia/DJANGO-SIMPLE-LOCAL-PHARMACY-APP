@@ -1,0 +1,23 @@
+{% extends 'pharmapp/base.html' %}
+
+{% block content %}
+
+<div class="col-md-6 offset-md-3">
+    <h4>{{ item.name }}</h4>
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }}">
+        {{ message }}
+    </div>
+    {% endfor %}
+    {% endif %}
+    <form action="" method="POST">
+        {% csrf_token %}
+        <label for="quantity">Quantity</label>
+        <input type="number" name="quantity" min="1" max="{{ item.stock_qnty }}" required>
+        <button class="btn btn-success">Add to cart</button>
+    </form>
+
+</div>
+
+{% endblock %}

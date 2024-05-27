@@ -1,0 +1,13 @@
+{% extends 'pharmapp/base.html' %}
+{% block content %}
+<br>
+
+<div class="col-md-6 offset-md-3">
+    <form action="" method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button class=" btn form-control btn-primary">UPDATE</button>
+    </form>
+</div>
+
+{% endblock %}

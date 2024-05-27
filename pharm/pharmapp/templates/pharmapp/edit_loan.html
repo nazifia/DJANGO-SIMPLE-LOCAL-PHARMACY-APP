@@ -1,0 +1,13 @@
+{% extends "pharmapp/base.html" %}
+
+{% block content %}
+<div class="col-md-6 offset-md-4">
+    <h1>Edit Loan</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button class="btn btn-success" type="submit">Save Changes</button>
+    </form>
+    <a class="btn btn-secondary" href="{% url 'loan_list' %}">Back to loan list</a>
+</div>
+{% endblock %}

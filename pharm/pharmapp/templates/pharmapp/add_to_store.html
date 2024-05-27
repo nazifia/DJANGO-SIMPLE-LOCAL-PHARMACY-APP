@@ -1,0 +1,14 @@
+{% extends 'pharmapp/base.html' %}
+<br>
+
+{% block content %}
+
+<div class="col-md-6 offset-md-3">
+    <form action="" method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button class="btn btn-success form-control">ADD TO STORE</button>
+    </form>
+</div>
+
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends "pharmapp/base.html" %}
+
+{% block content %}
+<div class="col-md-6 offset-md-4">
+    <h2>Delete Customer</h2>
+    <p>Are you sure you want to delete {{ customer.name }}?</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Delete</button>
+        <a href="{% url 'customer_list' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

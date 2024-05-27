@@ -1,0 +1,16 @@
+{% extends "pharmapp/base.html" %}
+
+{% block content %}
+<div class="col-md-6 offset-md-4">
+    <h1>Add Loan</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div class="col-md-6 offset-md-0"><button class="btn btn-success form-control mb-3" type="submit">Add
+                Loan</button>
+        </div>
+    </form>
+    <div class="col-md-6 offset-md-0"><a class="btn btn-secondary form-control" href="{% url 'loan_list' %}">Back to
+            List</a></div>
+</div>
+{% endblock %}

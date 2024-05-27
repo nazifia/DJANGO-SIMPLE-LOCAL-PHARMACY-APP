@@ -1,0 +1,43 @@
+{% extends 'pharmapp/base.html' %}
+
+{% block content %}
+
+<div class="col-md-8 offset-2">
+    <h4 class="col-md-6 offset-md-3">Total Purchase Value: ₦{{ total_purchase_value }}
+        <h4 class="col-md-6 offset-md-3">Total Stock Value: ₦{{ total_stock_value }}
+            <a class="btn btn-secondary" href="{% url 'home' %}">BACK</a>
+        </h4>
+
+        <table class="table table-striped table-hover table-bordered">
+            <thead class="table-primary">
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">NAME</th>
+                    <th scope="col">DESCRIPTION</th>
+                    <th scope="col">PURCHASED AT</th>
+                    <th scope="col">UNIT PRICE</th>
+                    <th scope="col">STOCK </th>
+                    <th scope="col">EXP DATE</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if items %}
+                {% for i in items %}
+                <tr>
+                    <td><a href="{% url 'edit_item' i.id %}">{{ i.id}}</a></td>
+                    <td>{{i.name}}</td>
+                    <td>{{i.description}}</td>
+                    <td>{{i.purchase_price}}</td>
+                    <td>{{i.unit_price}}</td>
+                    <td>{{i.stock_qnty}}</td>
+                    <td>{{i.exp_date}}</td>
+                </tr>
+                {% endfor %}
+                {% endif %}
+            </tbody>
+        </table>
+        <a class="btn form-control btn-primary" href="{% url 'add_to_store' %}">ADD TO STORE</a>
+
+</div>
+
+{% endblock %}

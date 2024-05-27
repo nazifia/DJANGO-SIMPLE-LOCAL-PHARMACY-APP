@@ -1,0 +1,24 @@
+{% extends 'pharmapp/base.html' %}
+{% block content %}
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Apply Discount</title>
+</head>
+
+<body>
+    <div class="col-md-6 offset-md-4">
+        <h3>Apply Discount to {{ cart_item.item.name }}</h3>
+        <form method="POST">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <div class="col-md-6 offset-md-0"><button class="btn btn-success form-control" type="submit">Apply
+                    Discount</button></div>
+        </form>
+    </div>
+</body>
+
+</html>
+
+{% endblock %}

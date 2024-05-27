@@ -1,0 +1,110 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Receipt</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <style>
+        header {
+            position: absolute;
+            top: 10px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 3rem;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 50vh;
+            width: 80%;
+            top: 90px;
+        }
+
+        form {
+            position: absolute;
+            top: 50px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 10rem;
+        }
+
+        footer {
+            position: absolute;
+            text-align: center;
+            bottom: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="receipt-head">
+            <h3>Nazz Pharmacy</h3>
+        </div>
+    </header>
+
+
+    <form>
+        <label for="buyer_name">Buyer's Name:</label>
+        <input type="text" id="buyer_name" name="buyer_name" placeholder="Enter Buyer's Name">
+        <a href="{% url 'view_cart' %}"><button class="btn btn-success" onclick="window.print()">Print</button></a>
+    </form>
+
+
+    <div class="col-md-8 offset-md-3">
+
+        <table class="table table-striped table-hover table-bordered">
+            <thead class="table-primary">
+                <tr>
+                    <th scope="col">SN</th>
+                    <th scope="col">Item Name</th>
+                    <th scope="col">Quantity</th>
+                    <th scope="col">Unit Price</th>
+                    <th scope="col">Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cart_item in cart_items %}
+                <tr>
+                    <th>{{ forloop.counter }}</th>
+                    <td>{{ cart_item.item.name }}</td>
+                    <td>{{ cart_item.quantity }}</td>
+                    <td>₦{{ cart_item.item.unit_price }}</td>
+                    <td>₦{{ cart_item.subtotal }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <h5>
+            <p>Total Price: ₦{{ total_price }}</p>
+            <h5>Total Price after Discount: {{ total_discounted_price }}</>
+            </h5>
+            <a class="btn btn-secondary" href="{% url 'view_cart' %}">Back</a>
+            <a href="{% url 'view_cart' %}"><button class="btn btn-success" onclick="window.print()">Print</button></a>
+
+
+    </div>
+
+    <footer>
+        <p>Thanks for patrionage</p>
+    </footer>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
+</body>
+
+</html>

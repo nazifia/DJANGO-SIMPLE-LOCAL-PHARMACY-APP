@@ -1,0 +1,35 @@
+{% extends 'pharmapp/base.html' %}
+{% block content %}
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Monthly Sales</title>
+</head>
+
+<body>
+    <div class="col-md-6 offset-md-3">
+        <h1>Monthly Sales</h1>
+        <table class="table table-striped table-hover table-bordered">
+            <thead class="table-primary">
+                <tr>
+                    <th scope="col">Month</th>
+                    <th scope="col">Total Sales</th>
+                </tr>
+            </thead>
+            {% for sale in monthly_sales %}
+            <tbody>
+                <tr>
+                    <td>{{ sale.month }}</td>
+                    <td>{{ sale.total_sales }}</td>
+                </tr>
+            </tbody>
+            {% endfor %}
+        </table>
+        <div class="col-md-6 offset-md-2"><a class="btn form-control btn-secondary" href="{% url 'sales' %}">Back to
+                Sales</a></div>
+    </div>
+</body>
+
+</html>
+{% endblock %}

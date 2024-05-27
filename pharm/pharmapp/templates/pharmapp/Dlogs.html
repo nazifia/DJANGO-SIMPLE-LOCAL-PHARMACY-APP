@@ -1,0 +1,45 @@
+{% extends 'pharmapp/base.html' %}
+
+{% block content %}
+
+<div class="col-md-8 offset-md-2">
+
+    <!DOCTYPE html>
+    <html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>NAZZ| DLogs</title>
+    </head>
+
+    <body>
+        <h1 class="col-md-8 offset-md-4">Dispensing Logs</h1>
+        <a class="btn btn-secondary mb-2 col-md-6 offset-md-3" href="{% url 'activities' %}">Back</a>
+
+        <table class="table table-striped table-hover table-bordered">
+            <thead class="table-primary">
+                <tr>
+                    <th scope="col">User</th>
+                    <th scope="col">Item</th>
+                    <th scope="col">Quantity</th>
+                    <th scope="col">Timestamp</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in Dlogs %}
+                <tr>
+                    <td>{{ log.user }}</td>
+                    <td>{{ log.name }}</td>
+                    <td>{{ log.quantity }}</td>
+                    <td>{{ log.timestamp }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <a class="btn btn-secondary mb-2 col-md-6 offset-md-3" href="{% url 'activities' %}">Back</a>
+    </body>
+
+    </html>
+</div>
+{% endblock %}

@@ -1,0 +1,37 @@
+<!-- templates/app/customer_list.html -->
+{% extends 'pharmapp/base.html' %}
+
+{% block content %}
+<div class="col-md-6 offset-md-3">
+    <h2 class="col-md-6 offset-md-3">Customer List</h2>
+
+    <table class="table table-striped table-hover table-bordered">
+        <thead class="table-primary">
+            <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Customer Name</th>
+                <th scope="col">Phone</th>
+                <th scope="col">Address</th>
+                <th scope="col">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for customer in customers %}
+            <tr>
+                <td>{{ customer.id }}</td>
+                <td>{{ customer.name }}</td>
+                <td>{{ customer.phone }}</td>
+                <td>{{ customer.address }}</td>
+                <td>
+                    <a href="{% url 'delete_customer' customer.pk %}" class="btn btn-danger">Delete</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a class="btn form-control btn-primary mb-3" href="{% url 'register_customer' %}">NEW CUSTOMER</a>
+    <a class="btn form-control btn-info mb-3" href="{% url 'loan_list' %}">LOAN LIST</a>
+    <a class="btn form-control btn-secondary" href="{% url 'home' %}">BACK TO HOME</a>
+
+</div>
+{% endblock %}

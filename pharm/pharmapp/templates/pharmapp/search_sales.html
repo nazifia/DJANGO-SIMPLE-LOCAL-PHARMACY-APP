@@ -1,0 +1,34 @@
+{% extends 'pharmapp/base.html' %}
+{% block content %}
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Search Sales</title>
+</head>
+
+<body>
+    <div class="col-md-6 offset-md-4">
+
+        <h1>Search Sales</h1>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <div class="col-md-6 offset-md-0"><button class="btn mb-3 form-control btn-success"
+                    type="submit">Search</button>
+            </div>
+        </form>
+        {% if search_date %}
+        <h2>Results for {{ search_date }}</h2>
+        <p>Daily Sales: {{ daily_sales }}</p>
+        <p>Monthly Sales: {{ monthly_sales }}</p>
+        {% endif %}
+        <a class="btn btn-secondary" href="{% url 'sales' %}">Back to Sales</a>
+        <a class="btn btn-warning" href="{% url 'daily_sales' %}">Daily Sales</a>
+        <a class="btn btn-primary" href="{% url 'monthly_sales' %}">Monthly Sales</a>
+    </div>
+
+</body>
+
+</html>
+{% endblock %}

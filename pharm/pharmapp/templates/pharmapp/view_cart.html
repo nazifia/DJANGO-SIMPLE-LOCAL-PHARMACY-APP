@@ -1,0 +1,51 @@
+{% extends 'pharmapp/base.html' %}
+
+{% block content %}
+<div class="col-md-9 offset-md-1">
+
+    {% if cart_items %}
+    <h4 class="col-md-6 offset-md-4">YOUR CART</h4>
+    <table class="table table-striped table-hover mt-3 table-bordered">
+        <thead class="table-primary">
+            <tr>
+                <th scope="col">SN</th>
+                <th scope="col">ITEM NAME</th>
+                <th scope="col">QNTY REQ</th>
+                <th scope="col">UNIT PRICE</th>
+                <th scope="col">SUBTOTAL</th>
+                <th scope="col">ACTION</th>
+                <th scope="col">DISCOUNT</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for cart_item in cart_items %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ cart_item.item.name }}</td>
+                <td>{{ cart_item.quantity }}</td>
+                <td>₦{{ cart_item.item.unit_price }}</td>
+                <td>₦{{ cart_item.subtotal }}</td>
+                <td>
+                    <a class="btn btn-danger" href="{% url 'remove_from_cart' cart_item.id %}">Remove from Cart</a>
+                </td>
+                <td>
+                    <a class="btn btn-info" href="{% url 'apply_discount' cart_item.id %}">Apply Discount</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+
+    </table>
+    <p>Total Price: ₦{{ total_price }}</p>
+    <h5>Total Price after Discount: {{ total_discounted_price }}</h5>
+    {% else %}
+    <div class="col-md-8 offset-md-4">
+        <h4>YOUR CART IS EMPTY</h4>
+
+        {% endif %}
+        <a class="btn btn-secondary" href="{% url 'search' %}">BACK</a>
+        <a class="btn btn-success" href="{% url 'receipt' %}">Generate Receipt</a>
+    </div>
+</div>
+
+{% endblock %}

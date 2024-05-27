@@ -1,0 +1,62 @@
+{% extends 'pharmapp/base.html' %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+
+</body>
+
+</html>
+
+{% block content %}
+<br>
+
+<div class="col-md-6 offset-3">
+    <form action="{% url 'search' %}" method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button class="btn btn-success form-control">SEARCH</button>
+    </form>
+</div>
+<br>
+
+{% if results %}
+<div class="col-md-8 offset-2">
+    <h3>SEARCH RESULTS</h3>
+    <table class="table table-striped table-hover table-bordered">
+        <thead class="table-primary">
+            <tr>
+                <th scope="col">SN</th>
+                <th scope="col">ITEM NAME</th>
+                <th scope="col">DESCRIPTION</th>
+                <th scope="col">UNIT PRICE</th>
+                <th scope="col">STOCK QNTY</th>
+                <th scope="col">ACTION</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            {% for n in results %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ n.name }}</td>
+                <td>{{ n.description }}</td>
+                <td>{{ n.unit_price }}</td>
+                <td>{{ n.stock_qnty }}</td>
+                <td>
+                    <a class="btn btn-primary" href="{% url 'add_to_cart' n.id %}">Add to cart</a>
+                </td>
+            </tr>
+            {% endfor %}
+
+        </tbody>
+    </table>
+</div>
+{% endif %}
+{% endblock %}

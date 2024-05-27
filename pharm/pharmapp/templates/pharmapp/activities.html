@@ -1,0 +1,51 @@
+{% extends 'pharmapp/base.html' %}
+{% load static %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activity Dashbord</title>
+    <style>
+        .container {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            position: absolute;
+            background-color: bisque;
+            height: 40%;
+            width: 90%;
+            left: 5%;
+        }
+
+        .activity {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 25%;
+            width: 20%;
+            background-color: green;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .activity a {
+            color: white;
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+    <br>
+    <br>
+    <div class="container">
+        <div class="dispenser activity"><a href="{% url 'logs' %}">Activity Logs</a></div>
+        <div class="activities activity"><a href="{% url 'Dlogs' %}">Dispensing Logs</a></div>
+    </div>
+</body>
+
+</html>
+{% endblock %}
