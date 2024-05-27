@@ -1,5 +1,7 @@
 from django import forms
 from .models import Store, Loan, Customers
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
 
 class searchForm(forms.Form):
     search_query = forms.CharField(min_length=2, label="", required=True, widget=forms.TextInput(attrs={'placeholder': 'SEARCH ITEM HERE', 'class': 'form-control'}))
@@ -41,3 +43,18 @@ class DiscountForm(forms.Form):
     discount_amount = forms.DecimalField(max_digits=10, decimal_places=2, label='Discount Amount')
     
     
+
+class RegistrationForm(UserCreationForm):
+
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'password1', 'password2']
+
+    def save(self, commit=True):
+        user = super(RegistrationForm, self).save(commit=False)
+        user.email = self.cleaned_data['email']
+        if commit:
+            user.save()
+        return user
+
+

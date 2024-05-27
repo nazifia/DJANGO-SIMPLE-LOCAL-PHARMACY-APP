@@ -1,0 +1,13 @@
+{% extends 'pharmapp/base.html' %}
+
+{% block content %}
+<div class="col-md-6 offset-md-3">
+    <h2 class="col-md-6 offset-md-2">Register New User</h2>
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div class="col-md-6 offset-md-0"><button class="btn btn-success form-control" type="submit">Register</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

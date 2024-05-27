@@ -7,7 +7,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from .models import Store, cartItem, ActivityLog, DeductionLog, Sales, Loan, Customers
-from .forms import searchForm, addToStore, salesForm, LoanForm, CustomerRegistrationForm, DiscountForm
+from .forms import searchForm, addToStore, salesForm, LoanForm, CustomerRegistrationForm, DiscountForm, RegistrationForm
 
 
 
@@ -255,7 +255,7 @@ def loan_list(request):
     loans = Loan.objects.all()
     return render(request, 'pharmapp/loan_list.html', {'loans': loans})
 
-@user_passes_test(is_admin)
+# @user_passes_test(is_admin)
 @login_required
 def add_loan(request):
     if request.method == 'POST':
@@ -343,4 +343,26 @@ def apply_discount(request, pk):
         form = DiscountForm(initial={'discount_amount': cart_item.discount_amount})
     
     return render(request, 'pharmapp/apply_discount.html', {'form': form, 'cart_item': cart_item})
+
+
+@user_passes_test(is_admin)
+def register(request):
+    if request.method == 'POST':
+        form = RegistrationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password1')
+            user = authenticate(request, username=username, password=password)
+            if user is not None:
+                login(request, user)
+                return redirect('home')
+            else:
+                messages.error(request, 'Registration successful, but login failed. Please try logging in manually.')
+                return redirect('login')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = RegistrationForm()
+    return render(request, 'pharmapp/register.html', {'form': form})
 
