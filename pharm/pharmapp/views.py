@@ -528,42 +528,43 @@ def purchase_items(request):
         if insufficient_stock:
             return redirect('purchase_items')
         
-        if wallet.balance >= total_price:
-            # Deduct the total price from the wallet balance
-            wallet.balance -= total_price
-            wallet.save()
+        # Allow the wallet balance to go negative if needed
+        wallet.balance -= total_price
+        wallet.save()
 
-            # Deduct the quantity from store and create sales records
-            for item, quantity in items_with_quantities:
-                item.stock_qnty -= quantity
-                item.save()
+        on_credit = wallet.balance < 0
 
-                # Log the sale
-                Sales.objects.create(
-                    user=request.user,
-                    name=item.name,
-                    quantity=quantity,
-                    amount=item.unit_price * quantity,
-                    on_credit=False
-                )
+        # Deduct the quantity from store and create sales records
+        for item, quantity in items_with_quantities:
+            item.stock_qnty -= quantity
+            item.save()
 
-                # Record into DeductionLog
-                DeductionLog.objects.create(
-                    user=request.user,
-                    name=item.name,
-                    quantity=quantity
-                )
+            # Log the sale
+            Sales.objects.create(
+                user=request.user,
+                name=item.name,
+                quantity=quantity,
+                amount=item.unit_price * quantity,
+                on_credit=on_credit
+            )
 
-            messages.success(request, 'Items purchased successfully and wallet balance updated.')
-            return redirect('wallet_detail', customer_id=customer_id)
+            # Record into DeductionLog
+            DeductionLog.objects.create(
+                user=request.user,
+                name=item.name,
+                quantity=quantity
+            )
+
+        if on_credit:
+            messages.success(request, 'Items purchased on credit due to insufficient wallet balance.')
         else:
-            messages.error(request, 'Insufficient funds in wallet.')
-            return redirect('wallet_detail', customer_id=customer_id)
+            messages.success(request, 'Items purchased successfully and wallet balance updated.')
+
+        return redirect('wallet_detail', customer_id=customer_id)
     else:
         items = Store.objects.all()
         customers = Customers.objects.all()
         return render(request, 'pharmapp/purchase_items.html', {'items': items, 'customers': customers})
-
 
 
 
