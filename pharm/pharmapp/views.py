@@ -1,3 +1,5 @@
+from django.utils import timezone
+from datetime import timedelta
 from django.urls import reverse
 from django.db.models.functions import TruncDay, TruncMonth
 from django.db.models import Sum, F, ExpressionWrapper, fields
@@ -6,8 +8,8 @@ from django.contrib.auth.decorators import user_passes_test, login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-from .models import Store, cartItem, ActivityLog, DeductionLog, Sales, Loan, Customers
-from .forms import searchForm, addToStore, salesForm, LoanForm, CustomerRegistrationForm, DiscountForm, RegistrationForm
+from .models import Store, cartItem, ActivityLog, DeductionLog, Sales, Loan, Customers, Wallet
+from .forms import searchForm, addToStore, salesForm, LoanForm, CustomerRegistrationForm, DiscountForm, RegistrationForm, AddFundsForm
 
 
 
@@ -89,22 +91,55 @@ def search(request):
             results = None
     return render(request, 'pharmapp/search.html', {'form': form, 'results': results})
 
+
+
+@login_required
+@transaction.atomic
+def add_funds(request, pk):
+    customer = get_object_or_404(Customers, pk=pk)
+    wallet = Wallet.objects.get(customer=customer)
+    
+    if request.method == 'POST':
+        form = AddFundsForm(request.POST, instance=wallet)
+        if form.is_valid():
+            wallet.balance += form.cleaned_data['balance']
+            wallet.save()
+            messages.success(request, 'Funds added successfully.')
+            return redirect('customer_list')
+    else:
+        form = AddFundsForm()
+    
+    return render(request, 'pharmapp/add_funds.html', {'form': form, 'customer': customer})
+
+
+
 @transaction.atomic
 def add_to_cart(request, pk):
     item = Store.objects.get(id=pk)
     if request.method == 'POST':
         quantity = int(request.POST['quantity'])
-        if item.stock_qnty >= quantity:
-            # Deduct the quantity from the stock
+        customer = Customers.objects.get(user=request.user)
+        wallet, created = Wallet.objects.get_or_create(customer=customer)
+        total_price = item.unit_price * quantity
+        
+        if wallet.balance >= total_price:
+            wallet.balance -= total_price
+            wallet.save()
+
             item.stock_qnty -= quantity
             item.save()
 
-            # Log the deduction
             DeductionLog.objects.create(user=request.user, name=item.name, quantity=quantity)
 
-            # Create cart item
             cartItem.objects.create(item=item, quantity=quantity)
-            
+            return redirect('view_cart')
+        elif item.stock_qnty >= quantity:
+            item.stock_qnty -= quantity
+            item.save()
+
+            DeductionLog.objects.create(user=request.user, name=item.name, quantity=quantity)
+
+            cartItem.objects.create(item=item, quantity=quantity)
             return redirect('view_cart')
         else:
             messages.error(request, f"Sorry, the requested quantity ({quantity}) exceeds the available stock quantity ({item.stock_qnty}).")
@@ -166,18 +201,26 @@ def generate_receipt(request):
         total_price += cart_item.subtotal
         total_discounted_price += cart_item.discounted_subtotal
 
-        # Create a sale entry for each cart item
+        # Determine if the sale is on credit based on wallet balance
+        customer = Customers.objects.get(user=request.user)
+        wallet = Wallet.objects.get(customer=customer)
+        on_credit = wallet.balance < total_discounted_price
+
+        # Deduct from wallet balance if sufficient
+        if not on_credit:
+            wallet.balance -= total_discounted_price
+            wallet.save()
+
         Sales.objects.create(
             user=request.user,
             name=cart_item.item.name,
             quantity=cart_item.quantity,
-            amount=cart_item.discounted_subtotal,  # Save the discounted amount as the sale amount
+            amount=cart_item.discounted_subtotal,
+            on_credit=on_credit
         )
     
-    # Clear the cart
     cartItem.objects.all().delete()
     return render(request, 'pharmapp/receipt.html', {'cart_items': cart_items, 'total_price': total_price, 'total_discounted_price': total_discounted_price})
-
 
 @user_passes_test(is_admin)
 def activity_logs(request):
@@ -307,6 +350,8 @@ def register_customer(request):
         form = CustomerRegistrationForm()
     return render(request, 'pharmapp/register_customer.html', {'form': form})
 
+
+
 def customer_list(request):
     if request.user.is_authenticated:
         customers = Customers.objects.all()
@@ -365,4 +410,169 @@ def register(request):
     else:
         form = RegistrationForm()
     return render(request, 'pharmapp/register.html', {'form': form})
+
+
+
+@login_required
+@transaction.atomic
+def add_funds(request, customer_id):
+    customer = get_object_or_404(Customers, id=customer_id)
+    wallet = customer.wallet
+
+    if request.method == 'POST':
+        form = AddFundsForm(request.POST)
+        if form.is_valid():
+            amount = form.cleaned_data['amount']
+            wallet.add_funds(amount)
+            messages.success(request, 'Funds added successfully.')
+            return redirect('wallet_detail', customer_id=customer_id)
+    else:
+        form = AddFundsForm()
+
+    return render(request, 'pharmapp/add_funds.html', {'form': form, 'customer': customer})
+
+def exp_date_alert(request):
+    if request.user.is_authenticated:
+        # Define the alert threshold (e.g., 90 days before expiration)
+        alert_threshold = timezone.now() + timedelta(days=90)
+        
+        # Get items that are expiring within the next 90 days
+        expiring_items = Store.objects.filter(exp_date__lte=alert_threshold, exp_date__gt=timezone.now())
+        
+        # Get items that have already expired
+        expired_items = Store.objects.filter(exp_date__lt=timezone.now())
+        
+        return render(request, 'pharmapp/exp_date_alert.html', {
+            'expiring_items': expiring_items,
+            'expired_items': expired_items,
+        })
+    else:
+        return redirect('home')
+    
+    
+    
+    
+@login_required
+def wallet_detail(request, customer_id):
+    customer = get_object_or_404(Customers, id=customer_id)
+    wallet = customer.wallet
+    return render(request, 'pharmapp/wallet_detail.html', {'wallet': wallet, 'customer': customer})
+
+
+
+@login_required
+@transaction.atomic
+def purchase_items(request):
+    if request.method == 'POST':
+        customer_id = request.POST.get('customer_id')
+        customer = get_object_or_404(Customers, id=customer_id)
+        wallet = customer.wallet
+        
+        item_ids = request.POST.getlist('item_ids')
+        total_price = 0
+        items_with_quantities = []
+        insufficient_stock = False
+        
+        for item_id in item_ids:
+            item = get_object_or_404(Store, id=item_id)
+            quantity = int(request.POST.get(f'quantity_{item_id}', 1))
+            
+            if item.stock_qnty < quantity:
+                messages.error(request, f'Insufficient stock for {item.name}. Available: {item.stock_qnty}')
+                insufficient_stock = True
+            else:
+                total_price += item.unit_price * quantity
+                items_with_quantities.append((item, quantity))
+
+        if insufficient_stock:
+            return redirect('purchase_items')
+        
+        if wallet.balance >= total_price:
+            # Render a confirmation page
+            return render(request, 'pharmapp/purchase_approval.html', {'customer': customer, 'total_price': total_price, 'items_with_quantities': items_with_quantities})
+        else:
+            messages.error(request, 'Insufficient funds in wallet.')
+            return redirect('wallet_detail', customer_id=customer_id)
+    else:
+        items = Store.objects.all()
+        customers = Customers.objects.all()
+        return render(request, 'pharmapp/purchase_items.html', {'items': items, 'customers': customers})
+    
+    
+    
+    
+@login_required
+@transaction.atomic
+def purchase_items(request):
+    if request.method == 'POST':
+        customer_id = request.POST.get('customer_id')
+        customer = get_object_or_404(Customers, id=customer_id)
+        wallet = customer.wallet
+        
+        item_ids = request.POST.getlist('item_ids')
+        total_price = 0
+        items_with_quantities = []
+        insufficient_stock = False
+        
+        for item_id in item_ids:
+            item = get_object_or_404(Store, id=item_id)
+            quantity = int(request.POST.get(f'quantity_{item_id}', 1))
+            
+            if item.stock_qnty < quantity:
+                messages.error(request, f'Insufficient stock for {item.name}. Available: {item.stock_qnty}')
+                insufficient_stock = True
+            else:
+                total_price += item.unit_price * quantity
+                items_with_quantities.append((item, quantity))
+
+        if insufficient_stock:
+            return redirect('purchase_items')
+        
+        if wallet.balance >= total_price:
+            # Deduct the total price from the wallet balance
+            wallet.balance -= total_price
+            wallet.save()
+
+            # Deduct the quantity from store and create sales records
+            for item, quantity in items_with_quantities:
+                item.stock_qnty -= quantity
+                item.save()
+
+                # Log the sale
+                Sales.objects.create(
+                    user=request.user,
+                    name=item.name,
+                    quantity=quantity,
+                    amount=item.unit_price * quantity,
+                    on_credit=False
+                )
+
+                # Record into DeductionLog
+                DeductionLog.objects.create(
+                    user=request.user,
+                    name=item.name,
+                    quantity=quantity
+                )
+
+            messages.success(request, 'Items purchased successfully and wallet balance updated.')
+            return redirect('wallet_detail', customer_id=customer_id)
+        else:
+            messages.error(request, 'Insufficient funds in wallet.')
+            return redirect('wallet_detail', customer_id=customer_id)
+    else:
+        items = Store.objects.all()
+        customers = Customers.objects.all()
+        return render(request, 'pharmapp/purchase_items.html', {'items': items, 'customers': customers})
+
+
+
+
+
+@login_required
+def clear_balance(request, customer_id):
+    wallet = get_object_or_404(Wallet, customer_id=customer_id)
+    wallet.balance = 0
+    wallet.save()
+    messages.success(request, 'Wallet balance has been cleared.')
+    return redirect('wallet_detail', customer_id=customer_id)
 

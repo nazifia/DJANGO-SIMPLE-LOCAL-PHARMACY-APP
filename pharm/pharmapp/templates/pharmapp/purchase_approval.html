@@ -1,0 +1,19 @@
+<!-- templates/pharmapp/purchase_approval.html -->
+{% extends 'pharmapp/base.html' %}
+
+{% block content %}
+<div class="col-md-6 offset-md-4">
+    <h2>Purchase Approval</h2>
+    <p>Customer: {{ customer.name }}</p>
+    <p>Total Price: ₦{{ total_price }}</p>
+    <form method="post" action="{% url 'complete_purchase' customer_id=customer.id %}">
+        {% csrf_token %}
+        <ul>
+            {% for item, quantity in items_with_quantities %}
+            <li>{{ item.name }} - Quantity: {{ quantity }}</li>
+            {% endfor %}
+        </ul>
+        <button type="submit">Confirm Purchase</button>
+    </form>
+</div>
+{% endblock %}

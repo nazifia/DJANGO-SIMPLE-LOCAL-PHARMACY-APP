@@ -3,10 +3,11 @@
 {% block content %}
 
 <div class="col-md-8 offset-2">
-    <h4 class="col-md-6 offset-md-3">Total Purchase Value: ₦{{ total_purchase_value }}
+    <h4 class="col-md-6 offset-md-3 mt-3">Total Purchase Value: ₦{{ total_purchase_value }}
         <h4 class="col-md-6 offset-md-3">Total Stock Value: ₦{{ total_stock_value }}
-            <a class="btn btn-secondary" href="{% url 'home' %}">BACK</a>
         </h4>
+        <div class="col-md-6 offset-md-3 "><a class="btn btn-secondary mb-3 mt-3 form-control"
+                href="{% url 'home' %}">BACK</a></div>
 
         <table class="table table-striped table-hover table-bordered">
             <thead class="table-primary">

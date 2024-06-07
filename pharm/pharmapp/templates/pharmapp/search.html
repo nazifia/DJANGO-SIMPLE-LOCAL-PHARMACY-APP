@@ -17,12 +17,13 @@
 {% block content %}
 <br>
 
-<div class="col-md-6 offset-3">
+<div class="col-md-6 offset-md-3 mt-4">
     <form action="{% url 'search' %}" method="POST">
         {% csrf_token %}
         {{ form.as_p }}
         <button class="btn btn-success form-control">SEARCH</button>
     </form>
+    <a href="{% url 'view_cart' %}" class="btn btn-info mt-3 form-control">VIEW CART</a>
 </div>
 <br>
 

@@ -4,7 +4,7 @@
 {% block content %}
 <div class="col-md-6 offset-md-3">
     <h2 class="col-md-6 offset-md-3">Customer List</h2>
-
+    <a class="btn btn-primary form-control mb-4" href="{% url 'purchase_items' %}">PURCHASE</a>
     <table class="table table-striped table-hover table-bordered">
         <thead class="table-primary">
             <tr>
@@ -18,7 +18,7 @@
         <tbody>
             {% for customer in customers %}
             <tr>
-                <td>{{ customer.id }}</td>
+                <td><a href="{% url 'wallet_detail' customer.id %}">{{ customer.id }}</a></td>
                 <td>{{ customer.name }}</td>
                 <td>{{ customer.phone }}</td>
                 <td>{{ customer.address }}</td>

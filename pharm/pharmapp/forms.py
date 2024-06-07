@@ -1,5 +1,5 @@
 from django import forms
-from .models import Store, Loan, Customers
+from .models import Store, Loan, Customers, Wallet
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
@@ -58,3 +58,23 @@ class RegistrationForm(UserCreationForm):
         return user
 
 
+class AddFundsForm(forms.Form):
+    amount = forms.DecimalField(max_digits=10, decimal_places=2)
+    
+    
+class PurchaseItemsForm(forms.Form):
+    customer = forms.ModelChoiceField(queryset=Customers.objects.all(), label="Select Customer")
+    items = forms.ModelMultipleChoiceField(queryset=Store.objects.all(), widget=forms.CheckboxSelectMultiple, label="Select Items")
+
+    def __init__(self, *args, **kwargs):
+        super(PurchaseItemsForm, self).__init__(*args, **kwargs)
+        self.quantity_fields = {}
+        for item in Store.objects.all():
+            field_name = f'quantity_{item.id}'
+            self.fields[field_name] = forms.IntegerField(
+                min_value=1,
+                initial=1,
+                label=f'Quantity for {item.name}',
+                required=False
+            )
+            self.quantity_fields[item.id] = self.fields[field_name]

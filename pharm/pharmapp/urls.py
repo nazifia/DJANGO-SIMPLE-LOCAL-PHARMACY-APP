@@ -29,4 +29,12 @@ urlpatterns = [
     path('customer/delete/<int:pk>/', views.delete_customer, name='delete_customer'),
     path('apply_discount/<int:pk>/', views.apply_discount, name='apply_discount'),
     path('register/', views.register, name='register'),
+    path('add-funds/<int:pk>/', views.add_funds, name='add_funds'),
+    path('exp_date_alert/', views.exp_date_alert, name='exp_date_alert'),
+    path('wallet/<int:customer_id>/', views.wallet_detail, name='wallet_detail'),
+    path('wallet/add-funds/', views.add_funds, name='add_funds'),
+    path('purchase_items/', views.purchase_items, name='purchase_items'),
+    path('wallet/<int:customer_id>/add_funds/', views.add_funds, name='add_funds'),
+    path('clear-balance/<int:customer_id>/', views.clear_balance, name='clear_balance'),
+    # path('complete_purchase/<int:customer_id>/', views.complete_purchase, name='complete_purchase'),
 ]

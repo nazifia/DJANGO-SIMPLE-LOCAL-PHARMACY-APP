@@ -1,0 +1,30 @@
+{% extends 'pharmapp/base.html' %}
+
+{% block content %}
+<div class="col-md-6 offset-md-3">
+
+    <h2>Purchase Items</h2>
+    <form method="POST">
+        {% csrf_token %}
+        <label for="customer">Select Customer:</label>
+        <select name="customer_id" id="customer">
+            {% for customer in customers %}
+            <option value="{{ customer.id }}">{{ customer.name }}</option>
+            {% endfor %}
+        </select>
+
+        <h3>Select Items:</h3>
+        {% for item in items %}
+        <div>
+            <input type="checkbox" name="item_ids" value="{{ item.id }}">
+            <label>{{ item.name }} - ₦{{ item.unit_price }} - Available: {{ item.stock_qnty }}</label>
+            <input type="number" name="quantity_{{ item.id }}" min="1" value="1">
+        </div>
+        {% endfor %}
+
+        <div class="col-md-6 offset-md-0 mt-4"><button class="btn btn-success form-control"
+                type="submit">Purchase</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

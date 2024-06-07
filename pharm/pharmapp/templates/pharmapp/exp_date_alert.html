@@ -1,0 +1,29 @@
+<!-- templates/app/exp_date_alert.html -->
+
+{% extends "pharmapp/base.html" %}
+
+{% block content %}
+<div class="col-md-6 offset-md-4 mt-4">
+    <h2>Items Nearing Expiration</h2>
+    {% if expiring_items %}
+    <ul>
+        {% for item in expiring_items %}
+        <li style="color: goldenrod;">{{ item.name }} - Expiration Date: {{ item.exp_date }}</li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p>No items are nearing expiration within the next 90 days.</p>
+    {% endif %}
+
+    <h2>Expired Items</h2>
+    {% if expired_items %}
+    <ul>
+        {% for item in expired_items %}
+        <li style="color: red;">{{ item.name }} - Expired on: {{ item.exp_date }}</li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p>No items have expired.</p>
+    {% endif %}
+</div>
+{% endblock %}
